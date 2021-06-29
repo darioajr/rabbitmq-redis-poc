@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+        - rabbitmq_net
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    image: com.github.darioajr/rabbitmq-consumer
+    container_name: consumer
+    environment:
+      QUEUE_NAME: my-queue
+      AMQP_HOST: host.docker.internal
+    tty: true
+    depends_on:
+      - "rabbitmq"
+    networks:
+      - rabbitmq_net
+  producer:
+    build:
+      context: ./producer
+      dockerfile: Dockerfile
+    image: com.github.darioajr/rabbitmq-producer
+    container_name: producer
+    ports:
+      - 3000:3000
+    environment:
+      QUEUE_NAME: my-queue
+      AMQP_HOST: host.docker.internal
+    tty: true
+    depends_on:
+      - "rabbitmq"
+    networks:
+      - rabbitmq_net
+networks:
+  rabbitmq_net:
+    driver: bridge
