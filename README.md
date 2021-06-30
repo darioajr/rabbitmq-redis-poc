@@ -1,35 +1,19 @@
-# rabbitmq-poc
-Simple RabbitMQ Poc with Node web publisher and Python console consumer
+# rabbitmq-redis-poc
+Simple RabbitMQ and Redis Poc with Node web publisher and Python console consumer-redis / consumer-rabbitmq
 
-Docker manual build and run
-
-# build and run producer
-```
-cd producer
-docker build -t producer .
-docker run -it --rm -p 3000:3000 -e QUEUE_NAME='my-queue' -e AMQP_HOST='host.docker.internal' producer
-```
-
-# build and run consumer
-```
-cd consumer
-docker build -t consumer .
-docker run -it --rm -e QUEUE_NAME='my-queue' -e AMQP_HOST='host.docker.internal' consumer
-```
-
-# build and run RabbitMQ
-```
-docker run -d -p 15672:15672 -p 5672:5672 --name rabbitmq rabbitmq:3-management-alpine
-```
-
-Docker compose build and run all
+Docker compose build
 ```
 docker-compose up
 ```
 
-View consumer result
+View consumer-redis result
 ```
-docker logs consumer 
+docker logs consumer-redis 
+```
+
+View consumer-rabbitmq result
+```
+docker logs consumer-rabbitmq 
 ```
 
 Produce message
