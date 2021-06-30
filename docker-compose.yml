@@ -1,5 +1,12 @@
 version: "3.9"
 services:
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    expose:
+      - 6379
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
@@ -11,18 +18,33 @@ services:
         - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     networks:
         - rabbitmq_net
-  consumer:
+  consumer_rabbitmq:
     build:
       context: ./consumer
       dockerfile: Dockerfile
     image: com.github.darioajr/rabbitmq-consumer
-    container_name: consumer
+    container_name: consumer-rabbitmq
     environment:
       QUEUE_NAME: my-queue
       AMQP_HOST: host.docker.internal
     tty: true
     depends_on:
       - "rabbitmq"
+    networks:
+      - rabbitmq_net
+  consumer_redis:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile-redis
+    image: com.github.darioajr/rabbitmq-consumer-redis
+    container_name: consumer-redis
+    environment:
+      QUEUE_NAME: my-queue
+      REDIS_PORT: 6379
+      REDIS_HOST: host.docker.internal
+    tty: true
+    depends_on:
+      - "redis"
     networks:
       - rabbitmq_net
   producer:
@@ -36,9 +58,12 @@ services:
     environment:
       QUEUE_NAME: my-queue
       AMQP_HOST: host.docker.internal
+      REDIS_PORT: 6379
+      REDIS_HOST: host.docker.internal
     tty: true
     depends_on:
       - "rabbitmq"
+      - "redis"
     networks:
       - rabbitmq_net
 networks:

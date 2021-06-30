@@ -1,0 +1,10 @@
+FROM python:3
+
+WORKDIR /usr/src/app
+
+COPY requirements_redis.txt ./
+RUN pip install --no-cache-dir -r requirements_redis.txt
+
+COPY . .
+
+CMD [ "python", "-u", "consumer_redis.py" ]
